@@ -1,2 +1,2 @@
 #!/bin/sh
-node ../js/node/urcx-emu.js $@
+node $(dirname `which urcx-emu`)/../js/node/urcx-emu.js $@
