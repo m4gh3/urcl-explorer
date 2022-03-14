@@ -1,2 +1,3 @@
 #!/bin/sh
-node $(dirname `which urcx-emu`)/../js/node/urcx-emu.js $@
+SELF_PATH=$(which urcx-emu)
+node $(dirname $SELF_PATH)/../js/node/urcx-emu.js $@
