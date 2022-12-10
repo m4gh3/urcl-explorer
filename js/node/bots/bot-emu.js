@@ -98,7 +98,7 @@ function discord_emu() {
         }
         std_info += "\nregisters:\n" + registers_to_string(emulator);
         if (argv_res.flags.__mem_start !== argv_res.flags.__mem_end) {
-            std_info += `\n\nmemory:\n` + memoryToString(emulator.memory, argv_res.flags.__mem_start, argv_res.flags.__mem_end, emulator.bits) + "\n\n";
+            std_info += `\n\nmemory:\n` + memoryToString(emulator.memory, argv_res.flags.__mem_start, argv_res.flags.__mem_end, emulator._bits) + "\n\n";
         }
     }
     function reset() {
@@ -106,6 +106,8 @@ function discord_emu() {
         std_info = "";
         emulator.reset();
         emulator.shrink_buffer();
+        storage = undefined;
+        display.buffers.length = 0;
     }
     function o() {
         const out = stdout;
@@ -234,7 +236,8 @@ options:
                 else {
                     bytes = new Uint8Array();
                 }
-                storage = new Storage(program.headers[URCL_Header.BITS].value, bytes, __little_endian, __storage_size * 1024);
+                storage = new Storage(program.headers[URCL_Header.BITS].value, __little_endian, __storage_size * 1024);
+                storage.set_bytes(bytes);
                 emulator.add_io_device(storage);
             }
             const canvas = Canvas.createCanvas(__width, __height);
@@ -253,6 +256,7 @@ options:
     function reply(msg) {
         try {
             if (state === Step_Result.Halt) {
+                reset();
                 std_info += `No Program running`;
                 return o();
             }

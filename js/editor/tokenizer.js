@@ -73,7 +73,7 @@ function regex(type, regex, src, i, tokens) {
     tokens.push({ type, start: i, end });
     return end;
 }
-var Token_Type;
+export var Token_Type;
 (function (Token_Type) {
     Token_Type["Unknown"] = "unknown";
     Token_Type["Comment"] = "comment";
@@ -100,12 +100,12 @@ var Token_Type;
     Token_Type["Comparator"] = "comparator";
 })(Token_Type || (Token_Type = {}));
 function tok_comment_multi(src, i, tokens) {
-    if (src.substr(i, 2) !== "/*") {
+    if (src.substring(i, 2) !== "/*") {
         return i;
     }
     const start = i;
     for (i += 2; i < src.length; i++) {
-        if (src.substr(i, 2) === "*/") {
+        if (src.substring(i, 2) === "*/") {
             break;
         }
     }
@@ -126,6 +126,7 @@ const tok_string_quote = bind(regex, Token_Type.Quote_String, /^"/);
 const tok_relative = bind(regex, Token_Type.Relative, /^~-?(0x[0-9a-fA-F_]+|0b[01_]+|[0-9_]+)/);
 const tok_label = bind(and, [
     bind(regex, Token_Type.Label, /^\.\w+/),
+    bind(opt, bind(regex, Token_Type.Number, /\+\d+/)),
     bind(list, bind(or, [
         tok_comment, tok_white_inline
     ]))
@@ -150,7 +151,7 @@ export const tokenize = bind(list, bind(or, [
     tok_white,
     tok_white_inline,
     bind(regex, Token_Type.Comparator, /^<=|>=|==/),
-    bind(regex, Token_Type.Macro, /^BITS|MINREG|MINHEAP|MINSTACK|RUN/i),
+    bind(regex, Token_Type.Macro, /^BITS|MINREG|MINHEAP|MINSTACK|RUN|HEAP/i),
     bind(regex, Token_Type.Text, /^RAM|ROM/i),
     tok_number,
     tok_char,
@@ -161,7 +162,9 @@ export const tokenize = bind(list, bind(or, [
     tok_label,
     tok_relative,
     tok_comment,
-    tok_comment_multi,
+    // tok_comment_multi,
+    bind(regex, Token_Type.Square_Open, /\[/),
+    bind(regex, Token_Type.Square_Close, /\]/),
     bind(regex, Token_Type.Macro, /^@[a-zA-Z_][a-zA-Z_0-9]*/),
     bind(regex, Token_Type.Name, /^[a-zA-Z_][a-zA-Z_0-9]*/),
     bind(regex, Token_Type.Unknown, /^\S+/),
